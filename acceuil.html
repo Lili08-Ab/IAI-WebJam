@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlas Interactif des Cultures - Un Monde Sans Frontières</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="acceuil.css">
+  
+</head>
+<body>
+  <!-- Theme Switcher -->
+  <div class="theme-switcher">
+    <button id="lightTheme" title="Mode clair">☀️</button>
+    <button id="darkTheme" class="active" title="Mode sombre">🌙</button>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Atlas Interactif des Cultures</h1>
+      <div class="subtitle">Un Monde Sans Frontières</div>
+      <div class="description">
+        Explorez la richesse culturelle de notre planète à travers un globe 3D interactif. 
+        Découvrez les traditions, monuments et merveilles de 195 pays du monde entier.
+      </div>
+      <a href="atlas.html" class="cta-button">
+        🌍 Commencer l'Exploration
+      </a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title animate-on-scroll">Fonctionnalités</h2>
+      <p class="section-subtitle animate-on-scroll">
+        Une expérience immersive pour découvrir les cultures du monde
+      </p>
+      
+      <div class="features-grid">
+        <div class="feature-card animate-on-scroll">
+          <span class="feature-icon">🌐</span>
+          <h3>Globe 3D Interactif</h3>
+          <p>Naviguez sur un globe terrestre en 3D avec rotation automatique et contrôles intuitifs pour explorer chaque continent.</p>
+        </div>
+        
+        <div class="feature-card animate-on-scroll">
+          <span class="feature-icon">📊</span>
+          <h3>Données en Temps Réel</h3>
+          <p>Informations actualisées via des APIs : population, capitale, langues, monnaies et bien plus encore.</p>
+        </div>
+        
+        <div class="feature-card animate-on-scroll">
+          <span class="feature-icon">🎨</span>
+          <h3>Galerie Culturelle</h3>
+          <p>Images haute qualité des monuments, paysages et traditions de chaque pays avec descriptions détaillées.</p>
+        </div>
+        
+        <div class="feature-card animate-on-scroll">
+          <span class="feature-icon">📖</span>
+          <h3>Descriptions Culturelles</h3>
+          <p>Textes enrichis sur l'histoire, les traditions et le patrimoine culturel de chaque nation.</p>
+        </div>
+        
+        <div class="feature-card animate-on-scroll">
+          <span class="feature-icon">🔗</span>
+          <h3>Liens Wikipédia</h3>
+          <p>Accès direct aux articles Wikipédia pour approfondir vos connaissances sur chaque pays.</p>
+        </div>
+        
+        <div class="feature-card animate-on-scroll">
+          <span class="feature-icon">📱</span>
+          <h3>Design Responsif</h3>
+          <p>Interface adaptée à tous les appareils : ordinateur, tablette et smartphone pour explorer partout.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preview Section -->
+  <section class="preview">
+    <div class="container">
+      <div class="preview-content animate-on-scroll">
+        <h2>Découvrez le Monde</h2>
+        <p>
+          Chaque clic sur un pays révèle ses secrets culturels, ses monuments emblématiques 
+          et ses traditions uniques. Une invitation au voyage depuis votre écran.
+        </p>
+        <div class="globe-demo">🌍</div>
+        <p>
+          "Code ta créativité" - Un projet innovant qui repousse les limites 
+          de l'exploration culturelle numérique.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats">
+    <div class="container">
+      <div class="stats-grid animate-on-scroll">
+        <div class="stat-item">
+          <span class="stat-number">195</span>
+          <div class="stat-label">Pays Explorables</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">7</span>
+          <div class="stat-label">Continents</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">∞</span>
+          <div class="stat-label">Découvertes</div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">3D</span>
+          <div class="stat-label">Expérience</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta">
+    <div class="container">
+      <h2 class="animate-on-scroll">Prêt pour l'Aventure ?</h2>
+      <p class="animate-on-scroll">
+        Embarquez dans un voyage extraordinaire à travers les cultures du monde. 
+        Chaque pays raconte une histoire unique qui mérite d'être découverte.
+      </p>
+      <a href="atlas.html" class="cta-button-large animate-on-scroll">
+        🚀 Lancer l'Atlas Interactif
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>Atlas Interactif des Cultures - IAI WebJam 2025</p>
+      <p class="credits">Développé avec passion pour célébrer la diversité culturelle mondiale</p>
+    </div>
+  </footer>
+
+  <script>
+    // Theme Switcher
+    const html = document.documentElement;
+    const lightBtn = document.getElementById('lightTheme');
+    const darkBtn = document.getElementById('darkTheme');
+
+    // Charger le thème sauvegardé
+    const savedTheme = window.localStorage.getItem('theme') || 'dark';
+    html.setAttribute('data-theme', savedTheme);
+    updateThemeButtons(savedTheme);
+
+    lightBtn.addEventListener('click', () => {
+      html.setAttribute('data-theme', 'light');
+      window.localStorage.setItem('theme', 'light');
+      updateThemeButtons('light');
+    });
+
+    darkBtn.addEventListener('click', () => {
+      html.setAttribute('data-theme', 'dark');
+      window.localStorage.setItem('theme', 'dark');
+      updateThemeButtons('dark');
+    });
+
+    function updateThemeButtons(theme) {
+      if (theme === 'light') {
+        lightBtn.classList.add('active');
+        darkBtn.classList.remove('active');
+      } else {
+        darkBtn.classList.add('active');
+        lightBtn.classList.remove('active');
+      }
+    }
+
+    // Animation au scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Parallaxe sur le hero
+    window.addEventListener('scroll', () => {
+      const scrolled = window.pageYOffset;
+      const parallax = document.querySelector('.hero');
+      if (parallax) {
+        const speed = scrolled * 0.5;
+        parallax.style.transform = `translateY(${speed}px)`;
+      }
+    });
+
+    // Animation des stats
+    const animateStats = () => {
+      const stats = document.querySelectorAll('.stat-number');
+      stats.forEach(stat => {
+        if (stat.textContent === '∞' || stat.textContent === '3D') return;
+        
+        const target = parseInt(stat.textContent);
+        let current = 0;
+        const increment = target / 50;
+        
+        const updateCounter = () => {
+          if (current < target) {
+            current += increment;
+            stat.textContent = Math.ceil(current);
+            requestAnimationFrame(updateCounter);
+          } else {
+            stat.textContent = target;
+          }
+        };
+        
+        updateCounter();
+      });
+    };
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateStats();
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    const statsSection = document.querySelector('.stats');
+    if (statsSection) {
+      statsObserver.observe(statsSection);
+    }
+
+    console.log('🌍 Page d\'accueil Atlas Interactif chargée avec succès !');
+  </script>
+</body>
+</html>
