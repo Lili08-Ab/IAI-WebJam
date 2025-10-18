@@ -9,30 +9,44 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
   <link rel="stylesheet" href="atlas.css">
-  
-  
 </head>
 <body>
-
   <div id="loadingScreen">
     <div class="loader"></div>
     <p>Chargement de l'atlas mondial...</p>
   </div>
 
+  <!-- <div class="header-overlay">
+    <h1>Atlas Interactif des Cultures</h1>
+    <p>Un Monde Sans Frontières - Explorez la diversité de notre planète</p>
+    <div class="search-container">
+      <input type="text" id="countrySearch" placeholder="Rechercher un pays..." aria-label="Rechercher un pays">
+      <button id="searchBtn" aria-label="Lancer la recherche">🔍</button>
+    </div>
+  </div> -->
+
   <div class="header-overlay">
     <h1>Atlas Interactif des Cultures</h1>
     <p>Un Monde Sans Frontières - Explorez la diversité de notre planète</p>
+    <div class="header-controls">
+      <a href="index.html" id="homeBtn" class="home-btn" aria-label="Retour à la page d'accueil">⬅️ Retour à l'accueil</a>
+      <div class="search-container">
+        <input type="text" id="countrySearch" placeholder="Rechercher un pays..." aria-label="Rechercher un pays" list="countrySuggestions">
+        <datalist id="countrySuggestions"></datalist>
+        <button id="searchBtn" aria-label="Lancer la recherche">🔍</button>
+      </div>
+    </div>
   </div>
 
   <div class="instructions">
-    <strong>💡 Instructions :</strong> Cliquez sur un pays pour découvrir sa culture, ses monuments et ses traditions !
+    <strong>💡 Instructions :</strong> Cliquez sur un pays ou utilisez la recherche pour découvrir sa culture, ses monuments et ses traditions !
   </div>
 
   <div id="globeViz"></div>
 
-  <div id="infoBox">
+  <div id="infoBox" role="dialog" aria-labelledby="countryName" aria-hidden="true">
     <div class="info-header">
-      <span id="closeBtn">&times;</span>
+      <span id="closeBtn" role="button" aria-label="Fermer la fenêtre d'information">&times;</span>
       <h2 id="countryName"></h2>
       <span class="flag" id="countryFlag"></span>
     </div>
@@ -89,7 +103,7 @@
         </div>
       </div>
 
-      <a href="#" id="seeMoreBtn" class="see-more-btn" target="_blank">
+      <a href="#" id="seeMoreBtn" class="see-more-btn" target="_blank" aria-label="En savoir plus sur Wikipédia">
         🌐 Découvrir plus sur Wikipédia
       </a>
     </div>
@@ -105,82 +119,313 @@
     let currentSwiper = null;
     let countriesData = {};
 
-    const culturalDescriptions = {
-      "France": "La France, berceau de la culture européenne, est réputée pour ses châteaux de la Loire, sa gastronomie raffinée, ses vins d'exception et ses révolutions artistiques. Paris, la Ville Lumière, abrite des chefs-d'œuvre architecturaux comme la Tour Eiffel, Notre-Dame et le Louvre. La culture française valorise l'art de vivre, la philosophie des Lumières et une riche tradition littéraire avec des auteurs comme Molière, Victor Hugo et Marcel Proust.",
-      
-      "Japan": "Le Japon fascine par sa capacité unique à allier modernité technologique et traditions millénaires. Cette nation insulaire a développé une esthétique raffinée visible dans l'art du thé, l'ikebana, les jardins zen et l'architecture traditionnelle. La culture japonaise valorise l'harmonie, le respect et la perfection dans chaque détail, des arts martiaux aux mangas contemporains.",
-      
-      "Brazil": "Le Brésil pulse au rythme de sa diversité culturelle exceptionnelle, fruit du métissage entre influences indigènes, africaines et européennes. Ce géant sud-américain nous offre la samba, la bossa nova, le carnaval de Rio, mais aussi une nature luxuriante avec l'Amazonie. La culture brésilienne célèbre la joie de vivre, la convivialité et une créativité artistique débordante.",
-      
-      "India": "L'Inde, terre de contrastes et de spiritualité, abrite l'une des plus anciennes civilisations du monde. Ce sous-continent fascinant mélange traditions hindoues, bouddhistes et musulmanes dans un kaléidoscope culturel unique. De Bollywood aux temples millénaires, du yoga aux épices parfumées, l'Inde offre une expérience sensorielle totale qui éveille tous les sens.",
-      
-      "Morocco": "Le Maroc, porte entre l'Afrique et l'Europe, enchante par ses médinas colorées, ses souks parfumés et son hospitalité légendaire. Ce royaume chérifien préserve un patrimoine architectural fastueux avec ses palais, mosquées et jardins andalous. La culture marocaine mélange influences berbères, arabes et françaises dans une synthèse harmonieuse.",
-      
-      "Egypt": "L'Égypte, don du Nil, berceau de l'une des plus grandes civilisations antiques, continue de fasciner le monde entier. Terre des pharaons et des pyramides, ce pays africain a légué à l'humanité des trésors archéologiques inestimables. La culture égyptienne contemporaine perpétue cette grandeur historique tout en s'ouvrant à la modernité.",
+  const culturalDescriptions = {
+  "France": "La France, berceau de la culture européenne, est réputée pour ses châteaux de la Loire, sa gastronomie raffinée, ses vins d'exception et ses révolutions artistiques. Paris, la Ville Lumière, abrite des chefs-d'œuvre architecturaux comme la Tour Eiffel, Notre-Dame et le Louvre. La culture française valorise l'art de vivre, la philosophie des Lumières et une riche tradition littéraire avec des auteurs comme Molière, Victor Hugo et Marcel Proust.",
+  "Japan": "Le Japon fascine par sa capacité unique à allier modernité technologique et traditions millénaires. Cette nation insulaire a développé une esthétique raffinée visible dans l'art du thé, l'ikebana, les jardins zen et l'architecture traditionnelle. La culture japonaise valorise l'harmonie, le respect et la perfection dans chaque détail, des arts martiaux aux mangas contemporains.",
+  "Brazil": "Le Brésil pulse au rythme de sa diversité culturelle exceptionnelle, fruit du métissage entre influences indigènes, africaines et européennes. Ce géant sud-américain nous offre la samba, la bossa nova, le carnaval de Rio, mais aussi une nature luxuriante avec l'Amazonie. La culture brésilienne célèbre la joie de vivre, la convivialité et une créativité artistique débordante.",
+  "India": "L'Inde, terre de contrastes et de spiritualité, abrite l'une des plus anciennes civilisations du monde. Ce sous-continent fascinant mélange traditions hindoues, bouddhistes et musulmanes dans un kaléidoscope culturel unique. De Bollywood aux temples millénaires, du yoga aux épices parfumées, l'Inde offre une expérience sensorielle totale qui éveille tous les sens.",
+  "Morocco": "Le Maroc, porte entre l'Afrique et l'Europe, enchante par ses médinas colorées, ses souks parfumés et son hospitalité légendaire. Ce royaume chérifien préserve un patrimoine architectural fastueux avec ses palais, mosquées et jardins andalous. La culture marocaine mélange influences berbères, arabes et françaises dans une synthèse harmonieuse.",
+  "Egypt": "L'Égypte, don du Nil, berceau de l'une des plus grandes civilisations antiques, continue de fasciner le monde entier. Terre des pharaons et des pyramides, ce pays africain a légué à l'humanité des trésors archéologiques inestimables. La culture égyptienne contemporaine perpétue cette grandeur historique tout en s'ouvrant à la modernité.",
+  "United States": "Les États-Unis, melting-pot culturel planétaire, incarnent le rêve américain et l'innovation perpétuelle. Cette nation continent a donné naissance au jazz, au rock, à Hollywood et à Silicon Valley. De la Statue de la Liberté aux gratte-ciels de Manhattan, des grands espaces du Far West aux plages de Californie, l'Amérique fascine par sa diversité et son dynamisme culturel.",
+  "United States of America": "Les États-Unis, melting-pot culturel planétaire, incarnent le rêve américain et l'innovation perpétuelle. Cette nation continent a donné naissance au jazz, au rock, à Hollywood et à Silicon Valley. De la Statue de la Liberté aux gratte-ciels de Manhattan, des grands espaces du Far West aux plages de Californie, l'Amérique fascine par sa diversité et son dynamisme culturel.",
+  "China": "La Chine, empire du Milieu aux 5000 ans d'histoire, fascine par sa capacité à préserver ses traditions ancestrales tout en embrassant la modernité. Berceau de la philosophie confucéenne, des arts martiaux, de la médecine traditionnelle et de nombreuses innovations, cette civilisation millénaire continue d'émerveiller par sa richesse culturelle et sa créativité contemporaine.",
+  "Italy": "L'Italie, berceau de la Renaissance et de l'art occidental, enchante par son patrimoine artistique inégalé et sa dolce vita légendaire. Des ruines romaines aux chefs-d'œuvre de Michel-Ange, des opéras de Verdi aux créations de mode milanaises, l'Italie cultive l'excellence dans tous les domaines de la beauté et de la créativité humaine.",
+  "Spain": "L'Espagne, carrefour des civilisations méditerranéennes, séduit par sa passion de vivre et sa créativité débordante. Terre du flamenco, de la corrida, de Picasso et de Gaudí, ce pays ibérique a su préserver ses traditions régionales tout en rayonnant culturellement dans le monde entier. De l'Andalousie mauresque à la Catalogne moderniste, l'Espagne célèbre la diversité dans l'unité.",
+  "Germany": "L'Allemagne, au cœur de l'Europe, impressionne par son mélange unique de tradition et de modernité. Des châteaux bavarois aux innovations technologiques, ce pays a marqué l'histoire de la philosophie, de la musique classique et de l'ingénierie. La culture allemande valorise la précision, la qualité et un profond respect pour la nature et les traditions.",
+  "United Kingdom": "Le Royaume-Uni, berceau de la révolution industrielle et de la langue anglaise, rayonne par son influence culturelle mondiale. De Shakespeare aux Beatles, de la famille royale à Harry Potter, cette nation insulaire a façonné l'imaginaire collectif planétaire. La culture britannique allie tradition aristocratique et créativité avant-gardiste.",
+  "Australia": "L'Australie, terre des grands espaces et de la Grande Barrière de Corail, fascine par sa nature sauvage et sa culture décontractée. Ce continent-nation valorise le multiculturalisme, le sport et une relation unique avec un environnement naturel exceptionnel. La culture australienne mélange héritage aborigène millénaire et modernité cosmopolite.",
+  "Canada": "Le Canada, deuxième plus grand pays du monde, impressionne par ses paysages grandioses et son bilinguisme. Cette nation nordique incarne la diversité culturelle, l'ouverture et le respect de la nature. De Montréal francophone à Vancouver multiculturelle, le Canada célèbre la coexistence harmonieuse des cultures.",
+  "Russia": "La Russie, plus vaste nation du monde, fascine par son histoire tumultueuse et sa richesse culturelle. Des ballets du Bolchoï à la littérature de Tolstoï et Dostoïevski, cette civilisation a profondément marqué l'art et la pensée mondiale. La culture russe allie âme slave, grandeur impériale et résilience légendaire.",
+  "Mexico": "Le Mexique, berceau des civilisations aztèque et maya, enchante par ses couleurs vives et sa joie de vivre. Cette nation d'Amérique latine mélange traditions précolombiennes et héritage espagnol dans une synthèse culturelle unique. Des mariachis au Día de los Muertos, le Mexique célèbre la vie avec passion et créativité.",
+  "Turkey": "La Turquie, pont entre l'Orient et l'Occident, fascine par sa position géographique unique et son héritage ottoman. Istanbul, ancienne Constantinople, incarne ce mélange des cultures. La Turquie offre une synthèse fascinante entre traditions islamiques, modernité laïque et hospitalité légendaire.",
+  "Greece": "La Grèce, berceau de la civilisation occidentale, continue de rayonner par son patrimoine antique exceptionnel. Terre des philosophes, des dieux olympiens et de la démocratie, ce pays méditerranéen a posé les fondations de notre culture. Des îles paradisiaques aux sites archéologiques, la Grèce enchante les voyageurs depuis des millénaires.",
+  "Thailand": "La Thaïlande, pays du sourire, séduit par sa spiritualité bouddhiste, sa cuisine raffinée et ses paysages tropicaux. Cette nation d'Asie du Sud-Est a su préserver son indépendance et ses traditions malgré les influences extérieures. La culture thaïlandaise valorise la sérénité, le respect et l'harmonie.",
+  "Peru": "Le Pérou, terre des Incas, fascine par ses sites archéologiques mystérieux et sa biodiversité exceptionnelle. Du Machu Picchu à la forêt amazonienne, ce pays andin offre des trésors culturels et naturels inestimables. La culture péruvienne mélange héritage précolombien, influence espagnole et créativité contemporaine.",
+  "South Africa": "L'Afrique du Sud, nation arc-en-ciel, impressionne par sa diversité culturelle et naturelle. Des safaris aux vignobles du Cap, ce pays a surmonté l'apartheid pour devenir un symbole de réconciliation. La culture sud-africaine célèbre le Ubuntu, philosophie de l'humanité partagée.",
+  "Argentina": "L'Argentine, pays du tango et du football, séduit par sa culture européenne en terre sud-américaine. De Buenos Aires cosmopolite aux glaciers de Patagonie, cette nation impressionne par sa diversité. La culture argentine valorise la passion, l'élégance et l'amour de la vie.",
+  "Sweden": "La Suède, royaume scandinave, fascine par son design minimaliste et sa qualité de vie exceptionnelle. Ce pays nordique incarne l'équilibre entre modernité, nature et traditions. La culture suédoise valorise l'égalité, la durabilité et le concept du lagom (juste équilibre).",
+  "Norway": "La Norvège, terre des fjords et des aurores boréales, enchante par ses paysages spectaculaires. Cette nation viking devenue prospère valorise la nature, l'égalité et la simplicité. La culture norvéenne célèbre l'outdoor lifestyle et une connexion profonde avec l'environnement.",
+  "Switzerland": "La Suisse, au cœur des Alpes, impressionne par sa neutralité, sa précision et son multiculturalisme. Ce petit pays allie quatre langues, démocratie directe et innovation. La culture suisse valorise la qualité, la discrétion et l'harmonie entre tradition et modernité.",
+  "Netherlands": "Les Pays-Bas, pays des tulipes et des moulins, fascinent par leur ouverture d'esprit et leur créativité. Cette nation maritime a marqué l'histoire de l'art avec Rembrandt et Van Gogh. La culture néerlandaise valorise la tolérance, le pragmatisme et l'innovation.",
+  "Portugal": "Le Portugal, nation des grands navigateurs, séduit par sa nostalgie mélancolique du fado et ses azulejos colorés. De Lisbonne à Porto, ce pays atlantique préserve une authenticité touchante. La culture portugaise célèbre la saudade, le bonheur simple et les traditions maritimes.",
+  // "Nigeria": "Le Nigeria, géant de l'Afrique, vibre au rythme de sa diversité ethnique et de son dynamisme culturel. Avec plus de 250 groupes ethniques, ce pays est un creuset de traditions, de musiques comme l'afrobeat et de littérature mondialement reconnue. Lagos, sa capitale économique, est le cœur de l'industrie cinématographique Nollywood, tandis que ses festivals colorés célèbrent l'unité dans la diversité.",
+  "Kenya": "Le Kenya, joyau de l'Afrique de l'Est, est célèbre pour ses safaris spectaculaires et ses paysages variés, des savanes du Masai Mara aux plages de Mombasa. La culture kenyane, riche des traditions des Masaï, Kikuyu et autres groupes ethniques, valorise l'hospitalité et le respect de la nature. La musique, la danse et l'artisanat traditionnel enrichissent son identité vibrante.",
+  "Ghana": "Le Ghana, perle de l'Afrique de l'Ouest, est un pays où l'histoire et la modernité se rencontrent. Berceau des royaumes Ashanti, il est riche en traditions orales, en textiles kente colorés et en festivals comme Homowo. Accra, sa capitale, pulse avec une scène musicale animée et une cuisine savoureuse, reflétant l'esprit accueillant des Ghanéens.",
+  "Algeria": "L'Algérie, joyau du Maghreb, impressionne par son riche passé historique et ses paysages variés, des côtes méditerranéennes au désert du Sahara. Sa culture, influencée par les Berbères, les Arabes et les Français, se manifeste dans la musique raï, les mosaïques romaines de Timgad et une cuisine épicée. L'hospitalité algérienne est légendaire.",
+  "Ethiopia": "L'Éthiopie, berceau de l'humanité, fascine par son histoire ancienne et sa diversité culturelle. Ce pays, l'un des seuls en Afrique à avoir résisté à la colonisation, est célèbre pour ses églises taillées dans la roche de Lalibela, ses festivals comme Timkat et sa cuisine unique, notamment l'injera. La culture éthiopienne valorise la spiritualité et la communauté.",
+  "Togo": "Le Togo, terre de contrastes entre savanes du Nord et lagunes du Sud, est un creuset de plus de 40 ethnies, dont les Ewé et les Kabiyé dominent. Berceau de traditions vaudou et d'une hospitalité légendaire, il vibre au rythme de danses rituelles et de festivals comme l'Agbogbozan, célébrant l'unité dans la diversité. La cuisine togolaise, avec ses ignames frites et ses sauces arachides, reflète cette fusion culturelle, tandis que la musique, du highlife au gospel local, anime les marchés de Lomé. Sur le lac Togo, les pêcheurs Tofinu perpétuent un mode de vie ancestral, faisant du pays un joyau d'authenticité africaine.",
+  
+  "Côte d'Ivoire": "La Côte d'Ivoire, mosaïque de 60 ethnies, incarne la vitalité africaine avec ses masques Dan et ses stilt houses chez les Wé. De la Basilique de Yamoussoukro aux marchés d'Abidjan, la culture ivoirienne célèbre le syncrétisme : christianisme, islam et animisme se mêlent dans des festivals comme le Fête des Masques. La musique zouglou et coupé-décalé, nés des rues d'Abidjan, résonnent mondialement, tandis que la cuisine – attiéké de poisson et alloco – unit les tables. Terre d'hospitalité, elle invite à découvrir son art vivant, reflet d'une histoire forgée par les empires et le commerce transsaharien.",
+  
+  "Burkina Faso": "Le Burkina Faso, 'pays des hommes intègres', est un kaléidoscope de 60 ethnies, des Mossi aux Gourounsi, où l'artisanat en bronze et les masques Mossi incarnent l'âme collective. Ouagadougou, capitale du cinéma africain avec le FESPACO, pulse au rythme de griots et de festivals comme le SIAO, foire artisanale mythique. La cuisine, du riz sauce arachide au tô de mil, nourrit les traditions orales et les danses rituelles. Malgré les défis, sa culture résiliente, ancrée dans l'harmonie avec la nature sahélienne, célèbre l'unité à travers l'art et la musique, faisant du Faso un phare de créativité ouest-africaine.",
+  
+  "Bénin": "Le Bénin, berceau du vaudou reconnu par l'UNESCO, est une terre de spiritualité où 42 ethnies, des Fon aux Yoruba, tissent une tapisserie de rites ancestraux et de palais royaux d'Abomey. Ouidah, 'Porte du Non-Retour', évoque l'histoire douloureuse de la traite, mais aussi la résilience culturelle avec ses festivals Vodoun. La musique afrobeat et les danses Zangbeto animent les marchés de Cotonou, tandis que la cuisine – pâte rouge et ignames pilés – unit les générations. Symbole d'harmonie entre tradition et modernité, le Bénin invite à une immersion profonde dans son héritage vivant et mystique.",
+  
+  "Nigeria": "Le Nigeria, géant culturel d'Afrique avec 250 ethnies, est un tourbillon de créativité : des bronzes de Bénin aux tissus Yoruba, en passant par Nollywood, deuxième industrie cinématographique mondiale. Lagos, capitale du cool, pulse d'Afrobeat (merci Fela Kuti !) et de festivals comme le Calabar Carnival, célébrant l'unité dans la diversité. La cuisine, du jollof rice au suya épicé, reflète ce melting-pot, tandis que les marchés d'Arte et les griots Hausa gardent vivante l'oralité ancestrale. Terre de talents (Chimamanda Ngozi Adichie, Burna Boy), le Nigeria rayonne comme épicentre de la modernité africaine.",
+  
+  "Mali": "Le Mali, empire millénaire de Soundiata Keïta, est un sanctuaire culturel où Tombouctou, 'perle du désert', abrite 25 000 manuscrits anciens. Les Dogons et leurs masques cosmogoniques, les griots et leur kora enchantent les falaises de Bandiagara, site UNESCO. Bamako vibre au rythme du Festival au Désert et de la musique blues du désert, tandis que Djenné, avec sa Grande Mosquée de boue, incarne l'architecture sahélienne. La cuisine – riz au poulet et thé vert – unit ethnies comme les Bambara et les Touaregs. Berceau de l'harmonie et de la sagesse, le Mali tisse passé et présent en une tapisserie intemporelle.",
+  
+  "Sénégal": "Le Sénégal, terre de la téranga (hospitalité), est un havre de cultures wolof, sérère et peule, où Dakar pulse de mbalax (Youssou N'Dour) et de festivals comme le Saint-Louis Jazz. Gorée, île de la mémoire, et le Lac Rose évoquent un passé colonial transformé en force créative. La cuisine – thiéboudienne et yassa – rassemble autour de tables conviviales, tandis que les contes griotiques et les danses sabar perpétuent l'oralité. Syncrétisme musulman-soufi et animiste, le Sénégal célèbre la tolérance et la joie de vivre, faisant de ses marchés et plages un hymne à l'unité africaine.",
+ 
+  "default": "Ce pays possède un riche patrimoine culturel unique, fruit de son histoire, de sa géographie et de ses traditions. Chaque nation contribue à la diversité extraordinaire de notre monde, apportant ses propres couleurs à la mosaïque culturelle planétaire. Explorez ses monuments, sa gastronomie, ses traditions et rencontrez ses habitants pour découvrir toute sa richesse."
+ };
 
-      "United States": "Les États-Unis, melting-pot culturel planétaire, incarnent le rêve américain et l'innovation perpétuelle. Cette nation continent a donné naissance au jazz, au rock, à Hollywood et à Silicon Valley. De la Statue de la Liberté aux gratte-ciels de Manhattan, des grands espaces du Far West aux plages de Californie, l'Amérique fascine par sa diversité et son dynamisme culturel.",
-      
-      "China": "La Chine, empire du Milieu aux 5000 ans d'histoire, fascine par sa capacité à préserver ses traditions ancestrales tout en embrassant la modernité. Berceau de la philosophie confucéenne, des arts martiaux, de la médecine traditionnelle et de nombreuses innovations, cette civilisation millénaire continue d'émerveiller par sa richesse culturelle et sa créativité contemporaine.",
-      
-      "Italy": "L'Italie, berceau de la Renaissance et de l'art occidental, enchante par son patrimoine artistique inégalé et sa dolce vita légendaire. Des ruines romaines aux chefs-d'œuvre de Michel-Ange, des opéras de Verdi aux créations de mode milanaises, l'Italie cultive l'excellence dans tous les domaines de la beauté et de la créativité humaine.",
-      
-      "Spain": "L'Espagne, carrefour des civilisations méditerranéennes, séduit par sa passion de vivre et sa créativité débordante. Terre du flamenco, de la corrida, de Picasso et de Gaudí, ce pays ibérique a su préserver ses traditions régionales tout en rayonnant culturellement dans le monde entier. De l'Andalousie mauresque à la Catalogne moderniste, l'Espagne célèbre la diversité dans l'unité.",
-      
-      "default": "Ce pays possède un riche patrimoine culturel unique, fruit de son histoire, de sa géographie et de ses traditions. Chaque nation contribue à la diversité extraordinaire de notre monde, apportant ses propres couleurs à la mosaïque culturelle planétaire."
-    };
-
-
-const countryImages = {
+    const countryImages = {
+  
+  "Côte d'Ivoire": [
+    { url: "https://www.sudquotidien.sn/wp-content/uploads/2024/01/f9a9074c-36c9-4d33-a72b-0f7b15a3db2d.jpeg", desc: "Basilique Notre-Dame de la Paix à Yamoussoukro" },
+    { url: "https://i.pinimg.com/736x/5e/5e/6c/5e5e6c8554bca16b10d61b6dcdff3342.jpg", desc: "Masque Dan, symbole d'art ivoirien" },
+    { url: "https://3.bp.blogspot.com/-Eh03LCC5SGg/XMbd1drV8zI/AAAAAAAAF5I/Uu_cQR5DmjcmZstP_3qrd5MUEyxN9JV-ACLcBGAs/s1600/Abidjan.jpg", desc: "Ville d'Abidjan" },
+    { url: "https://tse1.mm.bing.net/th/id/OIP.Ufx66GZ5jfGqjaMWBUCzegHaE8?cb=12&w=1024&h=683&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Festival des Masques chez les Wé" }
+  ],
+  
+  "Burkina Faso": [
+    { url: "https://tse4.mm.bing.net/th/id/OIP.1k6ysGi87RF7ng4YoCpqBwHaFj?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Grande Mosquée de Djenné, joyau architectural" },
+    { url: "https://tse1.explicit.bing.net/th/id/OIP.5hZrBHLhC9EITu3DEc6ygQHaLG?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Masque Mossi, gardien des traditions" },
+    { url: "https://www.aimf.asso.fr/wp-content/uploads/2023/02/ouaga-siao.jpg", desc: "Marché de Ouagadougou, artisanat vivant" },
+    { url: "https://discover-burkinafaso.com/wp-content/uploads/2020/08/Le-Fespaco-de-Ouagadougou-2.jpg", desc: "Festival FESPACO, cinéma africain" }
+  ],
+  
+  "Bénin": [
+    { url: "https://tse3.mm.bing.net/th/id/OIP.KVD-g_-UQimA5dYHth7YQAHaD3?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Palais royal d'Abomey, héritage du Dahomey" },
+    { url: "https://visitbeninrepublic.com/wp-content/uploads/2017/01/Benin-Monument-Amazone.webp", desc: "Statut de l'amazone" },
+    { url: "https://tse1.mm.bing.net/th/id/OIP.OJzlo9IFWCXDuxZ8UWDkKAHaHM?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Village lacustre de Ganvié" },
+    { url: "https://webautop-blog.com/wp-content/uploads/2022/08/bio-guera-1.jpeg", desc: "Monument de Bio Guéra" }
+  ],
+  
+  "Nigeria": [
+    { url: "https://www.nairaland.com/attachments/7353030_whitechiefs_jpeg4b616fd67a8dc3c42bb02ba8ea88cd4d", desc: "Three White‑Cap Chiefs" },
+    { url: "https://tse2.mm.bing.net/th/id/OIP.V87do87pui-fUUup4ckWQAHaFj?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Tafawa Balewa Square" },
+    { url: "https://tse1.mm.bing.net/th/id/OIP.Jaex0kEJ68IM667G57f_BAHaE8?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Marché de Lagos" },
+    { url: "https://tse4.mm.bing.net/th/id/OIP.oAK18CHg3djqMYbxf-hcdgHaE8?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Carnaval de Calabar, fête multicolore" }
+  ],
+  
+  "Mali": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Tombouctou_mosque.jpg/800px-Tombouctou_mosque.jpg", desc: "Mosquée de Tombouctou, perle du désert" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Dogon_mask.jpg/800px-Dogon_mask.jpg", desc: "Masque Dogon, gardien cosmogonique" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Bandiagara_cliffs.jpg/800px-Bandiagara_cliffs.jpg", desc: "Falaises de Bandiagara, site UNESCO" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Kora_player.jpg/800px-Kora_player.jpg", desc: "Griot jouant de la kora" }
+  ],
+  
+  "Sénégal": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Goree_island.jpg/800px-Goree_island.jpg", desc: "Île de Gorée, mémoire de l'histoire" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Sabar_dance.jpg/800px-Sabar_dance.jpg", desc: "Danse Sabar, rythme wolof" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Dakar_market.jpg/800px-Dakar_market.jpg", desc: "Marché Sandaga à Dakar" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Saint_Louis_Jazz.jpg/800px-Saint_Louis_Jazz.jpg", desc: "Festival Jazz de Saint-Louis" }
+  ],
   "France": [
-    { url: "https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=800", desc: "La Tour Eiffel, symbole emblématique de Paris" },
-    { url: "https://images.unsplash.com/photo-1576675784608-2b105a4a5adb?w=800", desc: "Le Louvre, plus grand musée du monde" },
-    { url: "https://images.unsplash.com/photo-1588095290225-fa2ff7c28b39?w=800", desc: "Champs de lavande de Provence" },
-    { url: "https://images.unsplash.com/photo-1520637836862-4d197d17c55a?w=800", desc: "Château de Versailles" }
+    { url: "https://thumbs.dreamstime.com/z/tour-eiffel-le-symbole-de-paris-18885495.jpg", desc: "La Tour Eiffel illuminée, symbole de Paris" },
+    { url: "https://cdn-s-www.republicain-lorrain.fr/images/530FE3E4-19AE-4080-845E-39B8741C5E15/NW_raw/le-palais-et-la-pyramide-du-louvre-photorl-1430403310.jpg", desc: "Le Louvre et sa pyramide de verre" },
+    { url: "https://i.pinimg.com/originals/cf/41/c9/cf41c9dc4e5fd19450a5e86b4db871ef.jpg", desc: "Champs de lavande en Provence" },
+    { url: "https://ctfs.ceskatelevize.cz/porady-s3/episode/64884265b0b00bb6f601379a/card/epizoda-16-1720440150488.jpg", desc: "Château de Versailles" }
   ],
-  
   "Japan": [
-    { url: "https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=800", desc: "Mont Fuji, montagne sacrée du Japon" },
-    { url: "https://images.unsplash.com/photo-1549693578-d683be217e58?w=800", desc: "Temple traditionnel avec cerisiers en fleurs" },
-    { url: "https://images.unsplash.com/photo-1536154451852-dd38eede5a4c?w=800", desc: "Tokyo de nuit, mégalopole moderne" },
-    { url: "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=800", desc: "Jardin zen japonais" }
+    { url: "https://img.freepik.com/photos-premium/fleur-cerisier-printemps-mont-fuji-arriere-plan-generative-ai_601748-44441.jpg?w=900", desc: "Mont Fuji avec cerisiers en fleurs" },
+    { url: "https://img.cooljapan-videos.com/r/1200x799/files/article_images/84dc9bbf357190ea29641718c443be900164f5e3.jpg", desc: "Temple Senso-ji à Tokyo" },
+    { url: "https://c8.alamy.com/compfr/2j463wc/japon-tokyo-district-de-shibuya-la-nuit-2j463wc.jpg", desc: "Quartier de Shibuya la nuit" },
+    { url: "https://deavita.fr/wp-content/uploads/2016/06/jardin-japonais-buis-boules-graviers-pierre-roches-bassin.jpg", desc: "Jardin zen traditionnel" }
   ],
-  
+  "United States": [
+    { url: "https://th.bing.com/th/id/R.e0e33bad1c93061508f933bba65edf38?rik=q%2fP37tHQK0G%2fJA&riu=http%3a%2f%2fwww.alovelyworld.com%2fphotos%2fwebusa%2fgimage%2fusa127.jpg&ehk=%2fdXTwRC1Yw%2fH2Zz1lK1xrPY1ouCdWH7udY0wFDIMVp0%3d&risl=&pid=ImgRaw&r=0", desc: "Statue de la Liberté à New York" },
+    { url: "https://st3.depositphotos.com/1007593/14463/i/1600/depositphotos_144639565-stock-photo-golden-gate-bridge-san-francisco.jpg", desc: "Golden Gate Bridge à San Francisco" },
+    { url: "https://tse3.mm.bing.net/th/id/OIP.TrEA45oSQilOwF3x_ZuysgHaEo?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Grand Canyon" },
+    { url: "https://th.bing.com/th/id/R.663ace42460a4dd727fac5464b8a4f3b?rik=Fat57jMoJVyrnQ&pid=ImgRaw&r=0", desc: "Skyline de New York" }
+  ],
+
+  "United States of America": [
+    { url: "https://th.bing.com/th/id/R.e0e33bad1c93061508f933bba65edf38?rik=q%2fP37tHQK0G%2fJA&riu=http%3a%2f%2fwww.alovelyworld.com%2fphotos%2fwebusa%2fgimage%2fusa127.jpg&ehk=%2fdXTwRC1Yw%2fH2Zz1lK1xrPY1ouCdWH7udY0wFDIMVp0%3d&risl=&pid=ImgRaw&r=0", desc: "Statue de la Liberté à New York" },
+    { url: "https://st3.depositphotos.com/1007593/14463/i/1600/depositphotos_144639565-stock-photo-golden-gate-bridge-san-francisco.jpg", desc: "Golden Gate Bridge à San Francisco" },
+    { url: "https://tse3.mm.bing.net/th/id/OIP.TrEA45oSQilOwF3x_ZuysgHaEo?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Grand Canyon" },
+    { url: "https://th.bing.com/th/id/R.663ace42460a4dd727fac5464b8a4f3b?rik=Fat57jMoJVyrnQ&pid=ImgRaw&r=0", desc: "Skyline de New York" }
+  ],
+  "Italy": [
+    { url: "https://tse3.mm.bing.net/th/id/OIP.WTbXYWBRIrwbmn7sBWtN6wHaEp?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Colisée de Rome" },
+    { url: "https://www.publicdomainpictures.net/pictures/220000/velka/the-grand-canal-in-venice.jpg", desc: "Canaux de Venise" },
+    { url: "https://tse2.mm.bing.net/th/id/OIP.3k4rNB5plRr7gqxqjiWOeQHaE7?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Tour de Pise" },
+    { url: "https://c1.staticflickr.com/9/8185/8351124432_6aa78e3e7c_b.jpg", desc: "Florence et le Duomo" }
+  ],
+  "Spain": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/99/Sagrada_Familia_Barcelona.jpg", desc: "Sagrada Familia à Barcelone" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/8/8c/Alhambra_Granada.jpg", desc: "Alhambra de Grenade" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Plaza_de_Espa%C3%B1a_Seville.jpg", desc: "Plaza de España à Séville" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Park_G%C3%BCell_Barcelona.jpg", desc: "Parc Güell de Gaudí" }
+  ],
   "Germany": [
-    { url: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=800", desc: "Château de Neuschwanstein en Bavière" },
-    { url: "https://images.unsplash.com/photo-1595867818082-083862f3d630?w=800", desc: "Porte de Brandebourg à Berlin" },
-    { url: "https://images.unsplash.com/photo-1574873215481-c0d7c99d5d1b?w=800", desc: "Villages bavarois pittoresques" },
-    { url: "https://images.unsplash.com/photo-1554072675-66db59dba46f?w=800", desc: "Cathédrale de Cologne" }
+    { url: "https://s-media-cache-ak0.pinimg.com/originals/3b/ee/60/3bee6002c2c797c664ac18d760fdb66e.jpg", desc: "Château de Neuschwanstein" },
+    { url: "https://tse3.mm.bing.net/th/id/OIP.HXOPeYxTLglKIfJ8VwqUJAHaE8?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Porte de Brandebourg à Berlin" },
+    { url: "https://cdn.getyourguide.com/img/location/5729ab6dcafd8.jpeg/88.jpg", desc: "Cathédrale de Cologne" },
+    { url: "https://c8.alamy.com/compfr/2f566kn/vue-aerienne-de-la-magnifique-vieille-ville-de-munich-au-coucher-du-soleil-2f566kn.jpg", desc: "Vieille ville de Munich" }
   ],
-
   "United Kingdom": [
-    { url: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800", desc: "Big Ben et le Parlement de Londres" },
-    { url: "https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=800", desc: "Château d'Édimbourg en Écosse" },
-    { url: "https://images.unsplash.com/photo-1504123010103-b149ac0ccd9e?w=800", desc: "Paysages des Highlands écossaises" },
-    { url: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800", desc: "Stonehenge, mystérieux monument préhistorique" }
+    { url: "https://upload.wikimedia.org/wikipedia/commons/6/67/Big_Ben_and_Houses_of_Parliament.jpg", desc: "Big Ben et le Parlement" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Edinburgh_Castle_Scotland.jpg", desc: "Château d'Édimbourg" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Tower_Bridge_London.jpg", desc: "Tower Bridge de Londres" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/8/8e/Stonehenge_Wiltshire.jpg", desc: "Stonehenge mystérieux" }
   ],
-
+  "Brazil": [
+    { url: "https://media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/09/96/19/80.jpg", desc: "Christ Rédempteur à Rio" },
+    { url: "https://tse3.mm.bing.net/th/id/OIP.uHTHvHJIxGQJ9ajkv_YhDQHaE8?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Plage de Copacabana" },
+    { url: "https://tse1.mm.bing.net/th/id/OIP.oex7gHxmO9qRsyAAFX2JXwHaEo?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Forêt amazonienne" },
+    { url: "https://th.bing.com/th/id/R.71747811f0e4e82aa070d6041384fbb5?rik=Ae3IgDFuqaJLWg&pid=ImgRaw&r=0", desc: "Carnaval de Rio" }
+  ],
   "Australia": [
-    { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800", desc: "Opéra de Sydney, icône architecturale" },
-    { url: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800", desc: "Grande Barrière de Corail" },
-    { url: "https://images.unsplash.com/photo-1562504208-03d85cc8c23e?w=800", desc: "Uluru (Ayers Rock) dans l'Outback" },
-    { url: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=800", desc: "Faune unique : kangourous et koalas" }
+    { url: "https://upload.wikimedia.org/wikipedia/commons/1/1e/Sydney_Opera_House.jpg", desc: "Opéra de Sydney" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Great_Barrier_Reef_Australia.jpg", desc: "Grande Barrière de Corail" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Uluru_Ayers_Rock.jpg", desc: "Uluru (Ayers Rock)" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Bondi_Beach_Sydney.jpg", desc: "Plage de Bondi Beach" }
   ],
-
-  "auto": true
+  "Egypt": [
+    { url: "https://th.bing.com/th/id/R.dd696fe06b87046c7ee1d79571c940e9?rik=kWpLkDVlFxs5bg&pid=ImgRaw&r=0", desc: "Pyramides de Gizeh" },
+    { url: "https://c8.alamy.com/compfr/fe8ptb/sphinx-avec-les-pyramides-en-arriere-plan-fe8ptb.jpg", desc: "Sphinx et pyramides" },
+    { url: "https://cdn.getyourguide.com/img/location/5963844562868.jpeg/88.jpg", desc: "Temple de Karnak" },
+    { url: "https://c8.alamy.com/compfr/2g2eyhn/felouques-sur-le-nil-en-egypte-asuan-2g2eyhn.jpg", desc: "Nil et felouques" }
+  ],
+  "China": [
+    { url: "https://th.bing.com/th/id/R.900a31766659ad3deb6777ac6de682a9?rik=xBOgusPqxPQ7EQ&pid=ImgRaw&r=0", desc: "Grande Muraille de Chine" },
+    { url: "https://t4.ftcdn.net/jpg/01/40/78/21/360_F_140782127_0PSKFuQNNN902FNKZVBkNu8TAy8On9he.jpg", desc: "Cité Interdite à Pékin" },
+    { url: "https://tse2.mm.bing.net/th/id/OIP.agYjJumq123aenTBQ4TIPAHaE0?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Armée de terre cuite" },
+    { url: "https://tse1.mm.bing.net/th/id/OIP.uqOt8mxPuwId-GjsrBSrogHaFj?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Shanghai moderne" }
+  ],
+  "India": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Taj_Mahal_Agra.jpg", desc: "Taj Mahal au lever du soleil" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Golden_Temple_Amritsar.jpg", desc: "Temple d'Or d'Amritsar" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Jaipur_Palace_India.jpg", desc: "Palais de Jaipur" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Varanasi_Ghats_India.jpg", desc: "Ghats de Varanasi" }
+  ],
+  "Mexico": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/1/1e/Chichen_Itza_Pyramid.jpg", desc: "Pyramide de Chichen Itza" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Tulum_Beach_Ruins.jpg", desc: "Plage de Tulum" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Guanajuato_City_Mexico.jpg", desc: "Guanajuato coloré" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Day_of_the_Dead_Mexico.jpg", desc: "Dia de los Muertos" }
+  ],
+  "Canada": [
+    { url: "https://tse4.mm.bing.net/th/id/OIP.oPtAMV3A8nG_L2mRy_VUgQHaLq?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "CN Tower à Toronto" },
+    { url: "https://cdn.suwalls.com/wallpapers/nature/green-trees-by-the-snowy-peaks-in-banff-national-park-51887-400x250.jpg", desc: "Lac Louise dans les Rocheuses" },
+    { url: "https://th.bing.com/th/id/R.52db1e9e14ed81634ed60cb42eccb226?rik=s92OX9mP4o8%2fzw&pid=ImgRaw&r=0", desc: "Chutes du Niagara" },
+    { url: "https://tse4.mm.bing.net/th/id/OIP.dMA0MKtxKM6rXMCK5DGjFwHaEs?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Vieux-Montréal" }
+  ],
+  "Russia": [
+    { url: "https://tse3.mm.bing.net/th/id/OIP.5cZTpR7c2r1dwAWm8NdhegHaL4?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Place Rouge et Saint-Basile" },
+    { url: "https://tse3.mm.bing.net/th/id/OIP.q0aMg4RoV6iJSQc7Js1gZAHaE8?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Palais d'Hiver à Saint-Pétersbourg" },
+    { url: "https://tse4.mm.bing.net/th/id/OIP.-6Yfzg6Ja_ArP4zjL38nNwHaEK?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Cathédrale Saint-Basile" },
+    { url: "https://tse4.mm.bing.net/th/id/OIP.QFrimU6flEg2d1KFZSIVxQHaE8?cb=12&rs=1&pid=ImgDetMain&o=7&rm=3", desc: "Transsibérien" }
+  ],
+  "Turkey": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/8/8e/Cappadocia_Hot_Air_Balloons.jpg", desc: "Ballons de Cappadoce" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Blue_Mosque_Istanbul.jpg", desc: "Mosquée Bleue" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Hagia_Sophia_Istanbul.jpg", desc: "Sainte-Sophie" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Pamukkale_Turkey.jpg", desc: "Piscines de Pamukkale" }
+  ],
+  "Greece": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Santorini_Greece.jpg", desc: "Santorin et ses maisons blanches" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Parthenon_Athens.jpg", desc: "Parthénon d'Athènes" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Meteora_Monasteries_Greece.jpg", desc: "Monastères des Météores" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Mykonos_Windmills.jpg", desc: "Mykonos et ses moulins" }
+  ],
+  "Thailand": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Wat_Arun_Bangkok.jpg", desc: "Temple Wat Arun à Bangkok" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Phi_Phi_Islands_Thailand.jpg", desc: "Îles Phi Phi" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/White_Temple_Chiang_Rai.jpg", desc: "Temple blanc de Chiang Rai" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Floating_Market_Thailand.jpg", desc: "Marché flottant" }
+  ],
+  "Peru": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Machu_Picchu_Peru.jpg", desc: "Machu Picchu" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9c/Lake_Titicaca_Peru.jpg", desc: "Lac Titicaca" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Rainbow_Mountain_Peru.jpg", desc: "Rainbow Mountain" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Nazca_Lines_Peru.jpg", desc: "Lignes de Nazca" }
+  ],
+  "South Africa": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Table_Mountain_Cape_Town.jpg", desc: "Table Mountain au Cap" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Kruger_National_Park_Safari.jpg", desc: "Safari dans le parc Kruger" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Stellenbosch_Vineyards.jpg", desc: "Vignobles de Stellenbosch" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Bo_Kaap_Cape_Town.jpg", desc: "Bo-Kaap coloré" }
+  ],
+  
+  "Kenya": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Masai_Mara_Safari_Kenya.jpg", desc: "Safari dans le Masai Mara" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Diani_Beach_Mombasa.jpg", desc: "Plage de Diani à Mombasa" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Masai_Culture_Kenya.jpg", desc: "Culture Masaï traditionnelle" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Nairobi_Skyline_Kenya.jpg", desc: "Nairobi moderne" }
+  ],
+  "Ghana": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Cape_Coast_Castle_Ghana.jpg", desc: "Château de Cape Coast" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Kumasi_Market_Ghana.jpg", desc: "Marché de Kumasi" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Kente_Cloth_Ghana.jpg", desc: "Textiles kente traditionnels" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Homowo_Festival_Ghana.jpg", desc: "Festival Homowo" }
+  ],
+  "Algeria": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Sahara_Desert_Algeria.jpg", desc: "Désert du Sahara" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Timgad_Roman_Ruins_Algeria.jpg", desc: "Ruines romaines de Timgad" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Casbah_Algiers.jpg", desc: "Casbah d'Alger" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Ketchaoua_Mosque_Algiers.jpg", desc: "Mosquée Ketchaoua" }
+  ],
+  "Ethiopia": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Lalibela_Church_Ethiopia.jpg", desc: "Églises de Lalibela" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Simien_Mountains_Ethiopia.jpg", desc: "Montagnes du Simien" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Timkat_Festival_Ethiopia.jpg", desc: "Festival Timkat" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Addis_Ababa_Market.jpg", desc: "Marché d'Addis-Abeba" }
+  ],
+  "Senegal": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Goree_Island_Senegal.jpg", desc: "Île de Gorée" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Dakar_Market_Senegal.jpg", desc: "Marché de Dakar" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Pink_Lake_Senegal.jpg", desc: "Lac Rose" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Mbalax_Music_Senegal.jpg", desc: "Musique mbalax à Dakar" }
+  ],
+  "Mali": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Djenne_Mosque_Mali.jpg", desc: "Mosquée de Djenné" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Timbuktu_Mali.jpg", desc: "Tombouctou historique" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Niger_River_Mali.jpg", desc: "Fleuve Niger" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Desert_Festival_Mali.jpg", desc: "Festival du désert" }
+  ],
+  "Tunisia": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Tunis_Medina_Tunisia.jpg", desc: "Médina de Tunis" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Carthage_Ruins_Tunisia.jpg", desc: "Ruines de Carthage" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/El_Jem_Amphitheatre_Tunisia.jpg", desc: "Amphithéâtre d'El Jem" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Sidi_Bou_Said_Tunisia.jpg", desc: "Sidi Bou Saïd" }
+  ],
+  "Uganda": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Mountain_Gorillas_Uganda.jpg", desc: "Gorilles des montagnes" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Lake_Victoria_Uganda.jpg", desc: "Lac Victoria" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Bwindi_National_Park_Uganda.jpg", desc: "Parc national de Bwindi" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Baganda_Culture_Uganda.jpg", desc: "Danses traditionnelles Baganda" }
+  ],
+  "Rwanda": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Kigali_Hills_Rwanda.jpg", desc: "Collines de Kigali" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Volcanoes_National_Park_Rwanda.jpg", desc: "Parc national des Volcans" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Intore_Dance_Rwanda.jpg", desc: "Danses Intore" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Kimironko_Market_Rwanda.jpg", desc: "Marché de Kimironko" }
+  ],
+  "Côte d'Ivoire": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Basilica_Yamoussoukro_Ivory_Coast.jpg", desc: "Basilique de Yamoussoukro" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Abidjan_Skyline_Ivory_Coast.jpg", desc: "Skyline d'Abidjan" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Tai_National_Park_Ivory_Coast.jpg", desc: "Parc national de Taï" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Yacouba_Dance_Ivory_Coast.jpg", desc: "Danse traditionnelle Yacouba" }
+  ],
+  "Benin": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Porto_Novo_Royal_Palace_Benin.jpg", desc: "Palais royal de Porto-Novo" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Ganvie_Stilt_Village_Benin.jpg", desc: "Village lacustre de Ganvié" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Ouidah_Door_of_No_Return.jpg", desc: "Porte du Non-Retour à Ouidah" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Vodun_Festival_Benin.jpg", desc: "Festival vodoun à Ouidah" }
+  ],
+  "Burkina Faso": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Grand_Mosque_Bobo_Dioulasso.jpg", desc: "Grande Mosquée de Bobo-Dioulasso" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Ouagadougou_Market_Burkina_Faso.jpg", desc: "Marché de Ouagadougou" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Loropeni_Ruins_Burkina_Faso.jpg", desc: "Ruines de Loropéni" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Mossi_Culture_Burkina_Faso.jpg", desc: "Culture Mossi traditionnelle" }
+  ],
+  "Togo": [
+    { url: "https://togomarveloustravelandtours.files.wordpress.com/2016/03/the-cathedral.jpg", desc: "Cathédrale DU grand marché de Lomé" },
+    { url: "https://th.bing.com/th/id/R.83ed427da6b0d5e8ff8e9a3f957989f1?rik=3NpTg29dfgZ6cA&riu=http%3a%2f%2fwww.togo-tourisme.com%2fuploads%2fmedia%2fcity%2f0001%2f01%2fcdfb9397d1498965794feb53ecb9d9751a616dfa.jpeg&ehk=gShLqLmwGoBY%2fIp5UN7TQUZ0JyxMt8Kow7kOQNyurt0%3d&risl=&pid=ImgRaw&r=0", desc: "Plage de Lomé" },
+    { url: "https://media-cdn.tripadvisor.com/media/photo-s/03/e0/c6/df/keran-national-park.jpg", desc: "Parc National de la Kéran" },
+    { url: "https://c8.alamy.com/compfr/2bhf5e9/le-monument-de-l-independance-a-lome-togo-2bhf5e9.jpg", desc: "Monument de l'indépendance" }
+  ],
+  "Sierra Leone": [
+    { url: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Freetown_Sierra_Leone.jpg", desc: "Vue de Freetown" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/9/9b/Banana_Islands_Sierra_Leone.jpg", desc: "Îles Banana" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Cotton_Tree_Freetown.jpg", desc: "Cotton Tree à Freetown" },
+    { url: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Mende_Culture_Sierra_Leone.jpg", desc: "Culture Mende traditionnelle" }
+  ]
 };
-
-function getCountryImages(countryName) {
-  if (countryImages[countryName]) {
-    return countryImages[countryName];
-  }
-  
-  const keywords = getSmartKeywords(countryName);
-  
-  return keywords.map((keyword, index) => ({
-    url: `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}`,
-    desc: getSmartDescription(countryName, index)
-  }));
-}
 
 function getSmartKeywords(countryName) {
   const specialKeywords = {
@@ -190,14 +435,25 @@ function getSmartKeywords(countryName) {
     "Russia": ["red square moscow", "saint basil cathedral", "hermitage museum", "trans siberian"],
     "Mexico": ["chichen itza", "mexican culture", "tulum ruins", "day of the dead mexico"],
     "Turkey": ["hagia sophia", "cappadocia balloons", "blue mosque", "pamukkale turkey"],
-    "Greece": ["santorini", "parthenon athens", "mykonos island", "meteora monasteries"]
+    "Greece": ["santorini", "parthenon athens", "mykonos island", "meteora monasteries"],
+    "South Africa": ["table mountain", "kruger safari", "stellenbosch vineyards", "bo-kaap"],
+    "Nigeria": ["lagos nigeria", "Marché d'Arte à Lagos", "Carnaval de Calabar", "igbo festival"],
+    "Kenya": ["masai mara", "diani beach", "masai culture", "nairobi skyline"],
+    "Ghana": ["cape coast castle", "kumasi market", "kente cloth", "homowo festival"],
+    "Algeria": ["sahara desert", "timgad ruins", "casbah algiers", "ketchaoua mosque"],
+    "Ethiopia": ["lalibela churches", "simien mountains", "timkat festival", "addis ababa market"],
+    "Senegal": ["goree island", "dakar market", "pink lake senegal", "mbalax music"],
+    "Mali": ["djenne mosque", "timbuktu mali", "niger river", "mali desert festival"],
+    "Tunisia": ["tunis medina", "carthage ruins", "el jem amphitheatre", "sidi bou said"],
+    "Uganda": ["mountain gorillas", "lake victoria", "bwindi national park", "baganda culture"],
+    "Rwanda": ["kigali hills", "volcanoes national park", "intore dance", "kimironko market"],
+    "Côte d'Ivoire": ["yamoussoukro basilica", "abidjan skyline", "tai national park", "yacouba dance"],
+    "Benin": ["porto novo palace", "ganvie stilt village", "ouidah door of no return", "vodun festival"],
+    "Burkina Faso": ["bobo dioulasso mosque", "ouagadougou market", "loropeni ruins", "mossi culture"],
+    "Togo": ["koutammakou landscape", "lome beach", "togo voodoo ceremony", "lome market"],
+    "Sierra Leone": ["freetown sierra leone", "banana islands", "cotton tree freetown", "mende culture"]
   };
-  
-  if (specialKeywords[countryName]) {
-    return specialKeywords[countryName];
-  }
-  
-  return [
+  return specialKeywords[countryName] || [
     `${countryName} landmarks architecture`,
     `${countryName} traditional culture`,
     `${countryName} natural landscape`,
@@ -205,59 +461,95 @@ function getSmartKeywords(countryName) {
   ];
 }
 
-function getSmartDescription(countryName, index) {
-  const templates = [
-    `Sites emblématiques et monuments historiques de ${countryName}`,
-    `Patrimoine culturel et traditions authentiques de ${countryName}`,
-    `Merveilles naturelles et paysages de ${countryName}`,
-    `Architecture et lieux historiques de ${countryName}`
-  ];
-  
-  return templates[index] || `Découvrez la beauté unique de ${countryName}`;
-}
-
-function loadCountryImages(countryName) {
-  // Nettoyer le contenu du carrousel
-  document.getElementById("carouselContent").innerHTML = "";
-  
-  // Utiliser le système intelligent
-  const images = getCountryImages(countryName);
-  
-  // Ajouter les images au carrousel
-  images.forEach(img => {
-    document.getElementById("carouselContent").innerHTML += `
-      <div class="swiper-slide">
-        <img src="${img.url}" alt="${countryName}" loading="lazy" 
-             onerror="this.src='https://source.unsplash.com/800x600/?${encodeURIComponent(countryName + ' travel')}'">
-        <div class="slide-description">${img.desc}</div>
-      </div>
-    `;
-  });
-
-  // Initialiser le Swiper
-  setTimeout(() => {
-    if (document.getElementById("carouselContent").children.length > 0) {
-      currentSwiper = new Swiper(".swiper", {
-        loop: true,
-        autoplay: {
-          delay: 5000,
-          disableOnInteraction: false,
-        },
-        navigation: { 
-          nextEl: ".swiper-button-next", 
-          prevEl: ".swiper-button-prev" 
-        },
-        pagination: { 
-          el: ".swiper-pagination",
-          clickable: true
-        },
-        effect: 'slide',
-        speed: 600,
-        spaceBetween: 20
-      });
+    function getCountryImages(countryName) {
+      if (countryImages[countryName]) {
+        return countryImages[countryName];
+      }
+      const keywords = getSmartKeywords(countryName);
+      return keywords.map((keyword, index) => ({
+        url: `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}`,
+        desc: getSmartDescription(countryName, index)
+      }));
     }
-  }, 200);
-}
+
+    function getSmartKeywords(countryName) {
+      const specialKeywords = {
+        "Egypt": ["pyramids egypt", "sphinx cairo", "nile river", "luxor temple"],
+        "Peru": ["machu picchu", "rainbow mountain peru", "lima cathedral", "amazon rainforest peru"],
+        "Thailand": ["thai temple", "floating market thailand", "phi phi island", "bangkok skyline"],
+        "Russia": ["red square moscow", "saint basil cathedral", "hermitage museum", "trans siberian"],
+        "Mexico": ["chichen itza", "mexican culture", "tulum ruins", "day of the dead mexico"],
+        "Turkey": ["hagia sophia", "cappadocia balloons", "blue mosque", "pamukkale turkey"],
+        "Greece": ["santorini", "parthenon athens", "mykonos island", "meteora monasteries"],
+        "South Africa": ["table mountain", "kruger safari", "stellenbosch vineyards", "bo-kaap"],
+        "Nigeria": ["lagos nigeria", "yoruba culture", "nigerian market", "igbo festival"],
+        "Kenya": ["masai mara", "diani beach", "masai culture", "nairobi skyline"],
+        "Ghana": ["cape coast castle", "kumasi market", "kente cloth", "homowo festival"],
+        "Algeria": ["sahara desert", "timgad ruins", "casbah algiers", "ketchaoua mosque"],
+        "Ethiopia": ["lalibela churches", "simien mountains", "timkat festival", "addis ababa market"]
+      };
+      return specialKeywords[countryName] || [
+        `${countryName} landmarks architecture`,
+        `${countryName} traditional culture`,
+        `${countryName} natural landscape`,
+        `${countryName} historical sites`
+      ];
+    }
+
+    function getSmartDescription(countryName, index) {
+      const templates = [
+        `Sites emblématiques et monuments historiques de ${countryName}`,
+        `Patrimoine culturel et traditions authentiques de ${countryName}`,
+        `Merveilles naturelles et paysages de ${countryName}`,
+        `Architecture et lieux historiques de ${countryName}`
+      ];
+      return templates[index] || `Découvrez la beauté unique de ${countryName}`;
+    }
+
+    function loadCountryImages(countryName) {
+      document.getElementById("carouselContent").innerHTML = "";
+      const images = getCountryImages(countryName);
+      if (images.length === 0) {
+        document.getElementById("carouselContent").innerHTML = `
+          <div class="loading-country">
+            <div class="spinner"></div>
+            <p>Aucune image disponible pour le moment.</p>
+          </div>
+        `;
+        return;
+      }
+      images.forEach(img => {
+        document.getElementById("carouselContent").innerHTML += `
+          <div class="swiper-slide">
+            <img src="${img.url}" alt="${countryName}" loading="lazy" 
+                 onerror="this.src='https://source.unsplash.com/800x600/?${encodeURIComponent(countryName + ' travel')}'">
+            <div class="slide-description">${img.desc}</div>
+          </div>
+        `;
+      });
+      setTimeout(() => {
+        if (document.getElementById("carouselContent").children.length > 0) {
+          currentSwiper = new Swiper(".swiper", {
+            loop: images.length > 1,
+            autoplay: {
+              delay: 5000,
+              disableOnInteraction: false,
+            },
+            navigation: { 
+              nextEl: ".swiper-button-next", 
+              prevEl: ".swiper-button-prev" 
+            },
+            pagination: { 
+              el: ".swiper-pagination",
+              clickable: true
+            },
+            effect: 'fade',
+            speed: 800,
+            spaceBetween: 20
+          });
+        }
+      }, 200);
+    }
 
     function initGlobe() {
       myGlobe = Globe()
@@ -281,18 +573,20 @@ function loadCountryImages(countryName) {
         .onPolygonClick(showInfo)
         .onPolygonHover((polygon) => {
           document.body.style.cursor = polygon ? 'pointer' : 'default';
+          myGlobe.polygonCapColor(d => d === polygon ? 'rgba(102, 126, 234, 0.8)' : 'rgba(102, 126, 234, 0.6)');
         });
 
-      // Animation automatique du globe
       myGlobe.controls().autoRotate = true;
-      myGlobe.controls().autoRotateSpeed = 0.3;
+      myGlobe.controls().autoRotateSpeed = 0.5;
+      myGlobe.controls().enableZoom = true;
+      myGlobe.controls().minDistance = 200;
+      myGlobe.controls().maxDistance = 400;
+      myGlobe.controls().touchRotateSpeed = 1.5; // Improved touch controls
     }
 
-    // Fonction pour récupérer les données d'un pays via l'API REST Countries
     async function fetchCountryData(countryName) {
       try {
         const possibleNames = [countryName, countryName.replace(/\s+/g, ''), countryName.toLowerCase()];
-        
         for (const name of possibleNames) {
           try {
             const response = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(name)}`);
@@ -306,7 +600,6 @@ function loadCountryImages(countryName) {
             continue;
           }
         }
-        
         const response = await fetch(`https://restcountries.com/v3.1/all`);
         if (response.ok) {
           const allCountries = await response.json();
@@ -319,7 +612,6 @@ function loadCountryImages(countryName) {
           );
           return match || null;
         }
-        
         return null;
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);
@@ -349,55 +641,17 @@ function loadCountryImages(countryName) {
       return currencyList.map(curr => `${curr.name} (${curr.symbol || ''})`).join(', ');
     }
 
-    function loadCountryImages(countryName) {
-      document.getElementById("carouselContent").innerHTML = "";
-      
-      const images = countryImages[countryName] || countryImages.default;
-      
-      images.forEach(img => {
-        document.getElementById("carouselContent").innerHTML += `
-          <div class="swiper-slide">
-            <img src="${img.url}" alt="${countryName}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800'">
-            <div class="slide-description">${img.desc}</div>
-          </div>
-        `;
-      });
-
-      setTimeout(() => {
-        if (document.getElementById("carouselContent").children.length > 0) {
-          currentSwiper = new Swiper(".swiper", {
-            loop: true,
-            autoplay: {
-              delay: 5000,
-              disableOnInteraction: false,
-            },
-            navigation: { 
-              nextEl: ".swiper-button-next", 
-              prevEl: ".swiper-button-prev" 
-            },
-            pagination: { 
-              el: ".swiper-pagination",
-              clickable: true
-            },
-            effect: 'slide',
-            speed: 600,
-            spaceBetween: 20
-          });
-        }
-      }, 200);
-    }
-
     async function showInfo(country) {
       const countryName = country.properties.name || country.properties.NAME || country.properties.NAME_EN;
-      
       if (!countryName) return;
 
       myGlobe.controls().autoRotate = false;
-      
+      myGlobe.pointOfView({ lat: country.properties.lat || 0, lng: country.properties.lon || 0, altitude: 2.5 }, 1000);
+
       document.getElementById("countryName").innerText = countryName;
       document.getElementById("countryFlag").innerText = "🏳️";
-      
-      // Réinitialiser les champs
+      document.getElementById("infoBox").setAttribute('aria-hidden', 'false');
+
       document.getElementById("capital").innerText = "Chargement...";
       document.getElementById("region").innerText = "Chargement...";
       document.getElementById("population").innerText = "Chargement...";
@@ -405,11 +659,9 @@ function loadCountryImages(countryName) {
       document.getElementById("languages").innerText = "Chargement...";
       document.getElementById("currency").innerText = "Chargement...";
       document.getElementById("description").innerText = "Chargement des informations culturelles...";
-      
-      // Afficher la fenêtre
+
       document.getElementById("infoBox").style.display = "block";
-      
-      // Détruire l'ancien Swiper s'il existe
+
       if (currentSwiper) {
         currentSwiper.destroy();
         currentSwiper = null;
@@ -417,30 +669,19 @@ function loadCountryImages(countryName) {
 
       try {
         const countryData = await fetchCountryData(countryName);
-        
         if (countryData) {
-          document.getElementById("capital").innerText = 
-            countryData.capital ? countryData.capital[0] : "Non disponible";
-          document.getElementById("region").innerText = 
-            `${countryData.region || "Non disponible"}${countryData.subregion ? ` - ${countryData.subregion}` : ""}`;
-          document.getElementById("population").innerText = 
-            countryData.population ? formatPopulation(countryData.population) : "Non disponible";
-          document.getElementById("area").innerText = 
-            formatArea(countryData.area);
-          document.getElementById("languages").innerText = 
-            getLanguages(countryData.languages);
-          document.getElementById("currency").innerText = 
-            getCurrency(countryData.currencies);
-          
+          document.getElementById("capital").innerText = countryData.capital ? countryData.capital[0] : "Non disponible";
+          document.getElementById("region").innerText = `${countryData.region || "Non disponible"}${countryData.subregion ? ` - ${countryData.subregion}` : ""}`;
+          document.getElementById("population").innerText = countryData.population ? formatPopulation(countryData.population) : "Non disponible";
+          document.getElementById("area").innerText = formatArea(countryData.area);
+          document.getElementById("languages").innerText = getLanguages(countryData.languages);
+          document.getElementById("currency").innerText = getCurrency(countryData.currencies);
           document.getElementById("countryFlag").innerText = countryData.flag || "🏳️";
-          
           const description = culturalDescriptions[countryName] || culturalDescriptions.default;
           document.getElementById("description").innerText = description;
-          
           const wikiUrl = `https://fr.wikipedia.org/wiki/${encodeURIComponent(countryName)}`;
           document.getElementById("seeMoreBtn").href = wikiUrl;
         } else {
-          // Données par défaut si l'API ne répond pas
           document.getElementById("capital").innerText = "Non disponible";
           document.getElementById("region").innerText = "Non disponible";
           document.getElementById("population").innerText = "Non disponible";
@@ -448,41 +689,69 @@ function loadCountryImages(countryName) {
           document.getElementById("languages").innerText = "Non disponible";
           document.getElementById("currency").innerText = "Non disponible";
           document.getElementById("description").innerText = culturalDescriptions.default;
-          
           const wikiUrl = `https://fr.wikipedia.org/wiki/${encodeURIComponent(countryName)}`;
           document.getElementById("seeMoreBtn").href = wikiUrl;
         }
-
-        // Charger les images
         loadCountryImages(countryName);
-
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
         document.getElementById("description").innerText = "Erreur lors du chargement des informations. Veuillez réessayer.";
+        document.getElementById("carouselContent").innerHTML = `
+          <div class="loading-country">
+            <div class="spinner"></div>
+            <p>Erreur lors du chargement des images. Veuillez réessayer.</p>
+          </div>
+        `;
       }
     }
 
-    // Fermeture de la popup
     function closeInfo() {
       document.getElementById("infoBox").style.display = "none";
-      // Reprendre la rotation automatique
+      document.getElementById("infoBox").setAttribute('aria-hidden', 'true');
       myGlobe.controls().autoRotate = true;
-      
       if (currentSwiper) {
         currentSwiper.destroy();
         currentSwiper = null;
       }
     }
 
-    // Charger les frontières du monde
+    async function searchCountry() {
+      const searchInput = document.getElementById("countrySearch").value.trim();
+      if (!searchInput) return;
+
+      try {
+        const response = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(searchInput)}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data[0]) {
+            const countryName = data[0].name.common;
+            const country = countriesData.features.find(c => 
+              c.properties.name === countryName || 
+              c.properties.NAME === countryName || 
+              c.properties.NAME_EN === countryName
+            );
+            if (country) {
+              showInfo(country);
+              myGlobe.pointOfView({ lat: country.properties.lat || 0, lng: country.properties.lon || 0, altitude: 2.5 }, 1000);
+            } else {
+              alert("Pays non trouvé sur le globe. Essayez un autre nom.");
+            }
+          } else {
+            alert("Pays non trouvé. Vérifiez l'orthographe ou essayez un autre nom.");
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la recherche:", error);
+        alert("Erreur lors de la recherche. Veuillez réessayer.");
+      }
+      document.getElementById("countrySearch").value = "";
+    }
+
     fetch('https://unpkg.com/world-atlas@2/countries-110m.json')
       .then(res => res.json())
       .then(worldData => {
-        const countries = topojson.feature(worldData, worldData.objects.countries).features;
-        
-        myGlobe.polygonsData(countries);
-        
-        // Cacher l'écran de chargement
+        countriesData = topojson.feature(worldData, worldData.objects.countries);
+        myGlobe.polygonsData(countriesData.features);
         setTimeout(() => {
           document.getElementById('loadingScreen').style.display = 'none';
         }, 2000);
@@ -492,10 +761,14 @@ function loadCountryImages(countryName) {
         document.getElementById('loadingScreen').innerHTML = '<p>Erreur de chargement. Veuillez actualiser la page.</p>';
       });
 
-    // Event listeners
     document.getElementById("closeBtn").addEventListener('click', closeInfo);
+    document.getElementById("searchBtn").addEventListener('click', searchCountry);
+    document.getElementById("countrySearch").addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchCountry();
+      }
+    });
 
-    // Fermer avec Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeInfo();
@@ -522,5 +795,43 @@ function loadCountryImages(countryName) {
       }
     });
   </script>
+
+  <style>
+    .search-container {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    #countrySearch {
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 1rem;
+      width: 200px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    #countrySearch:focus {
+      border-color: #00d4ff;
+      background: rgba(255,255,255,0.2);
+    }
+    #searchBtn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    #searchBtn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+  </style>
 </body>
 </html>
